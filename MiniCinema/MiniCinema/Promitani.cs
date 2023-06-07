@@ -64,9 +64,10 @@ namespace MiniCinema
         {
             for (int i = 0; i < Sedadla.Count; i++)
             {
-                if(s.Cislo == Sedadla[i].Cislo)
+                if (s.Cislo == Sedadla[i].Cislo)
                 {
                     Sedadla.RemoveAt(i);
+
                 }
             }
         }

@@ -44,7 +44,7 @@
                         Console.WriteLine("\n-------------------\n");
                         break;
                     case 1:
-
+                        LogIn(databaze);
                         Console.WriteLine("\n-------------------\n");
                         break;
                     case 2:
@@ -105,10 +105,11 @@
             int choice;
             do
             {
-                Console.Write("Výběr sedadla (1-" + databaze.Saly[volba].Sedadla.Count +"): ");
-            } while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > (databaze.Saly[volba].Sedadla.Count));
+                Console.Write("Výběr sedadla (1-5): ");
+            } while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > 5);
             Sedadlo s = new Sedadlo(choice);
             choice -= 1;
+
             databaze.Saly[volba].RemoveSedadlo(s);
             
             Objednavka o = new Objednavka(z, databaze.PrintPromitani(choice));
@@ -119,11 +120,33 @@
             databaze.InsertObj(o);
             databaze.SaveObjednavka(o);
             Console.WriteLine("----------------------------------" + "Objednano" + "----------------------------------");
+            
+            
+            
 
             //metoda pro poslani emailu
             //databaze.SendEmail(o);
         }
 
+
+        public static void LogIn(Databaze d)
+        {
+            Console.Write("Zadej jmeno: ");
+            string jmeno = Console.ReadLine();
+            Console.Write("Zadej prijmeni: ");
+            string prijmeni = Console.ReadLine();
+            Console.Write("Zadej email: ");
+            string email = Console.ReadLine();
+            Console.Write("Zadej heslo: ");
+            string heslo = Console.ReadLine();
+            Zakaznik z = new Zakaznik(jmeno, prijmeni, email, heslo);
+
+            Console.WriteLine(d.Login(z));
+
+
+
+
+        }
 
 
 

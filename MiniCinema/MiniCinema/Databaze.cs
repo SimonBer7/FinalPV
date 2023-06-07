@@ -29,6 +29,13 @@ namespace MiniCinema
         private List<Promitani> saly;
         private List<Objednavka> objednavky;
         private List<Promitani> rezSaly;
+        private Zakaznik prihlasenyZakaznik;
+
+        public Zakaznik PrihlasenyZakaznik
+        {
+            get { return prihlasenyZakaznik; }
+            set { prihlasenyZakaznik = value; }
+        }
 
         public List<Promitani> RezSaly
         {
@@ -409,6 +416,10 @@ namespace MiniCinema
             int index = 1;
             for(int i = 0; i < movies.Count; i++)
             {
+                if (Saly[i].Sedadla.Count == 0)
+                {
+                    Saly.Remove(Saly[i]);
+                }
                 print += index + ") " + movies[i]+"\n";
                 index++;
             }
@@ -421,6 +432,10 @@ namespace MiniCinema
             Promitani print = new Promitani();
             for (int i = 0; i < saly.Count; i++)
             {
+                if (Saly[i].Sedadla.Count == 0)
+                {
+                    Saly.Remove(Saly[i]);
+                }
                 if (i == index)
                 {
                     print = saly[index];
@@ -481,7 +496,18 @@ namespace MiniCinema
             }
         }
 
-
+        public string Login(Zakaznik z)
+        {
+            foreach (Zakaznik zak in Zakaznici)
+            {
+                if (z.Email == zak.Email && z.Heslo == zak.Heslo)
+                {
+                    PrihlasenyZakaznik = z;
+                    return "\nPrihlaseny zakaznik =>\n" + z.ToString();
+                }
+            }
+            return "Neúspěšné přihlášení...";
+        }
 
 
 
