@@ -143,8 +143,34 @@
 
             Console.WriteLine(d.Login(z));
 
+            Console.WriteLine("\n1) Vypis objednavek\n2) Edit objednavky\n3) Delete objednavky");
 
 
+            int choice;
+            do
+            {
+                Console.Write("Váš výběr (1-3): ");
+            } while (!int.TryParse(Console.ReadLine(), out choice) || choice < 1 || choice > 3);
+            choice -= 1;
+
+            switch(choice)
+            {
+                case 0:
+                    Console.WriteLine(d.ReadObjednavkaByZak(z));
+                    break;
+                
+                case 1:
+                    int cisloObj;
+                    do
+                    {
+                        Console.Write("Zadej cislo objednavky: ");
+                    } while (!int.TryParse(Console.ReadLine(), out cisloObj) || cisloObj > 0);
+                    choice -= 1;
+
+
+
+
+            }
 
         }
 

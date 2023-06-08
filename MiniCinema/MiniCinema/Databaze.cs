@@ -788,12 +788,96 @@ namespace MiniCinema
             return vypis;
         }
 
+        public string ReadObjednavkaByZak(Zakaznik z)
+        {
+            string vypis = "";
+            string selectObj = "select * from objednavka inner join zakaznik on zakaznik.id = objednavka.zakaznik_id where zakaznik.email = "+z.Email+";";
+            using SqlCommand command = new SqlCommand(selectObj, connection);
+            connection.Open();
+            using SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int cisloObj = (int)reader["cisloObj"];
+                int zakaznik_id = (int)reader["zakaznik_id"];
+                int promitani_id = (int)reader["promitani_id"];
+
+                for (int i = 1; i <= Zakaznici.Count; i++)
+                {
+                    if (i == zakaznik_id)
+                    {
+                        Zakaznik zak = Zakaznici[i - 1];
+                        vypis += zak.ToString() + "\n";
+                    }
+                }
+
+                for (int i = 1; i <= Saly.Count; i++)
+                {
+                    if (i == promitani_id)
+                    {
+                        Promitani promitani = Saly[i - 1];
+                        vypis += promitani.ToString();
+                    }
+                }
+            }
+            connection.Close();
+            return vypis;
+        }
+
+        public string ReadObjednavkaByObj(Objednavka o)
+        {
+            string vypis = "";
+            string selectObj = "select * from objednavka where objednavka.cisloObj = " + o.CisloObj + ";";
+            using SqlCommand command = new SqlCommand(selectObj, connection);
+            connection.Open();
+            using SqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                int cisloObj = (int)reader["cisloObj"];
+                int zakaznik_id = (int)reader["zakaznik_id"];
+                int promitani_id = (int)reader["promitani_id"];
+
+                for (int i = 1; i <= Zakaznici.Count; i++)
+                {
+                    if (i == zakaznik_id)
+                    {
+                        Zakaznik zak = Zakaznici[i - 1];
+                        vypis += zak.ToString() + "\n";
+                    }
+                }
+
+                for (int i = 1; i <= Saly.Count; i++)
+                {
+                    if (i == promitani_id)
+                    {
+                        Promitani promitani = Saly[i - 1];
+                        vypis += promitani.ToString();
+                    }
+                }
+            }
+            connection.Close();
+            return vypis;
+        }
 
         public void UpdateObjednavka(int novy)
         {
             string update = "update objednavka set cisloObj = " + novy + " where objednavka.id = 1;";
             this.CentralMethod(update);
         }
+
+        public void GetIdByZak(Zakaznik z)
+        {
+            string select = "select zakaznik.id"
+        }
+
+
+        public void UpdateObjednavkaByObj(Zakaznik z)
+        {
+
+            string update = "update objednavka set cisloObj = " + cisloObj + " where objednavka.id = 1;";
+            this.CentralMethod(update);
+        }
+
+
 
         public void DeleteObjenavka()
         {
