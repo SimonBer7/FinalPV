@@ -46,13 +46,9 @@ namespace MiniCinema
             Promitani = p;
         }
 
-
-        
         public override string ToString() 
         {
             return "Objednavka c." + CisloObj + "\n------------------\n" + Zakaznik.ToString() + "\n" + Promitani.Vypis();   
         }
-
-
     }
 }

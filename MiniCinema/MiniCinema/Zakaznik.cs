@@ -54,7 +54,6 @@ namespace MiniCinema
             {
                 hash += "*";
             }
-
             return hash;
         }
 

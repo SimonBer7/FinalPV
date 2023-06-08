@@ -33,20 +33,3 @@ create table objednavka(
 	promitani_id int not null references promitani(id)
 );
 
-
-select * from zakaznik;
-select * from film;
-select * from sedadlo;
-select * from promitani;
-select * from objednavka;
-
-
-delete from film;
-
-
-drop table objednavka;
-drop table promitani;
-drop table film;
-drop table zakaznik;
-drop table sedadlo;
-

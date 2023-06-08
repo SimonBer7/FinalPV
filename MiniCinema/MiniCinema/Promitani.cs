@@ -67,7 +67,6 @@ namespace MiniCinema
                 if (s.Cislo == Sedadla[i].Cislo)
                 {
                     Sedadla.RemoveAt(i);
-
                 }
             }
         }
@@ -86,11 +85,5 @@ namespace MiniCinema
             }
             return Nazev + ",\n" + Movie.ToString() + "\nSedadla: " + s;
         }
-
-
-
-
-
-
     }
 }

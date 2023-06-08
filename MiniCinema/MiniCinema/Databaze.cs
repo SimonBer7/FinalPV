@@ -21,8 +21,9 @@ namespace MiniCinema
 
         private static SqlConnection connection = null;
         private bool isConnected = false;
-        private string pathMovies = "movies.csv";
-        private string email = "miniCinemA1234";
+        private string pathMovies = "movies.csv";               //csv soubor, ze kterého načítám filmy
+        private string email = "miniCinemA1234@gmail.com";      //email, ze kterého se posílaj emaily
+        private string password = "rxplyvaqxnoknunc";
         private List<Zakaznik> zakaznici;
         private List<Film> movies;
         private List<Sedadlo> sedadla;
@@ -69,6 +70,13 @@ namespace MiniCinema
             }
         }
 
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
+
+
         public List<Promitani> Saly
         {
             get { return saly; }
@@ -93,7 +101,9 @@ namespace MiniCinema
             set { isConnected = value; }
         }
 
-
+        /// <summary>
+        /// Klasický konstruktor, kde využívám metody, které jednotlivě popíši níže
+        /// </summary>
         public Databaze()
         {
             try
@@ -119,6 +129,10 @@ namespace MiniCinema
             }
         }
 
+        /// <summary>
+        /// Metoda, ktera vrací true/false podle připojení do databáze
+        /// </summary>
+        /// <returns></returns>
         public bool CheckConnectu()
         {
             if (IsConnected == true) { return true; }
@@ -153,6 +167,11 @@ namespace MiniCinema
             }
         }
 
+
+        /// <summary>
+        /// Metoda na executování příchozích stringu(příkazů)
+        /// </summary>
+        /// <param name="vloz"></param>
         public void CentralMethod(string vloz)
         {
             try
@@ -173,9 +192,11 @@ namespace MiniCinema
             }
         }
 
+        /// <summary>
+        /// Obsáhlejší metoda, která čte data z databáze a podle toho přidává/odebírá např. sály a zákazníky
+        /// </summary>
         public void CentralCheckDB()
         {
-            //string vypis = "Zakaznici => \n";
             string selectZak = "select * from zakaznik;";
             using SqlCommand command = new SqlCommand(selectZak, connection);
             connection.Open();
@@ -190,13 +211,7 @@ namespace MiniCinema
                 Zakaznici.Add(z);
             }
             connection.Close();
-            foreach(Zakaznik z in Zakaznici)
-            {
-                //vypis += z.ToString()+"\n";
-            }
 
-
-            //vypis += "\nFilmy =>\n";
             string selectFilm = "select * from film;";
             using SqlCommand command2 = new SqlCommand(selectFilm, connection);
             connection.Open();
@@ -207,15 +222,10 @@ namespace MiniCinema
                 string cena = (string)reader2["cena"];
                 string delka = (string)reader2["delka"];
                 Film f = new Film(nazev, cena, delka);
-                //Movies.Add(f);
             }
             connection.Close();
-            foreach(Film f in Movies)
-            {
-                //vypis += f.ToString() + "\n";
-            }
+            
 
-            //vypis += "\nSedadla =>\n";
             string selectSedadlo = "select * from sedadlo;";
             using SqlCommand command3 = new SqlCommand(selectSedadlo, connection);
             connection.Open();
@@ -225,13 +235,9 @@ namespace MiniCinema
                 int cislo = (int)reader3["cislo"];
                 Sedadlo s = new Sedadlo(cislo);
                 Sedadla.Add(s);
-                //vypis += s.ToString();
             }
             connection.Close();
 
-
-
-            //vypis += "\nSaly => \n";
             string selectProm = "select * from promitani;";
             using SqlCommand command4 = new SqlCommand(selectProm, connection);
             connection.Open();
@@ -262,16 +268,10 @@ namespace MiniCinema
                 }
                 Promitani p = new Promitani(nazev, film, s);
                 RezSaly.Add(p);
-                //vypis += p.Vypis() + "\n";
             }
             connection.Close();
 
 
-
-
-
-
-            //vypis += "\nObjednvky =>\n";
             string selectObj = "select * from objednavka;";
             using SqlCommand command5 = new SqlCommand(selectObj, connection);
             connection.Open();
@@ -303,16 +303,16 @@ namespace MiniCinema
                 }
                 Objednavka o = new Objednavka(cisloObj, zak, promitani);
                 Objednavky.Add(o);
-                //vypis += o.ToString()+"\n";
             }
             connection.Close();
             
 
-            //return vypis;
-
         }
 
 
+        /// <summary>
+        /// Metoda, která odebere ze sálů sedadla, která jsou již rezervovaná
+        /// </summary>
         public void RemoveAlreadyReserved()
         {
             for (int i = 0; i < RezSaly.Count; i++)
@@ -328,23 +328,26 @@ namespace MiniCinema
         }
 
 
-
+        /// <summary>
+        /// Metoda, která dropne všechny tabulky v databázi a následně je hned vytvoří a tím databázi "resetuji"
+        /// </summary>
         public void ResetTable()
         {
+            
             List<string> drops = new List<string>();
             List<string> creates = new List<string>();
 
             string dropZak = "drop table zakaznik;";
             string dropSed = "drop table sedadlo;";
             string dropFilm = "drop table film;";
-            string dropProm = "drop table promitani";
+            string dropProm = "drop table promitani;";
             string dropObj = "drop table objednavka;";
 
             string createZak = "create table zakaznik(id int primary key identity(1,1),jmeno varchar(30) not null,prijmeni varchar(30) not null,email varchar(50) not null check(email like '%@%'),heslo varchar(30) not null);";
             string createSed = "create table sedadlo(id int primary key identity(1,1),cislo int not null check(cislo > 0));";
-            string createFilm = "create table film(id int primary key identity(1,1),nazev varchar(30) not null,cena varcahr(20) not null, delka varchar(20) not null);";
-            string createProm = "create table promitani(id int primary key identity(1,1),film_id int not null foreign key references film(id));";
-            string createObj = "create table objednavka(id int primary key identity(1,1),zakaznik_id int not null references zakaznik(id),promitani_id int not null references promitani(id));";
+            string createFilm = "create table film(id int primary key identity(1,1),nazev varchar(30) not null,cena varchar(20) not null,delka varchar(20) not null);";
+            string createProm = "create table promitani(id int primary key identity(1,1),nazev varchar(30) not null,film_id int not null foreign key references film(id),sedadlo_id int not null foreign key references sedadlo(id));";
+            string createObj = "create table objednavka(id int primary key identity(1,1),cisloObj int not null,zakaznik_id int not null references zakaznik(id),promitani_id int not null references promitani(id));";
 
             drops.Add(dropObj);
             drops.Add(dropProm);
@@ -352,24 +355,29 @@ namespace MiniCinema
             drops.Add(dropSed);
             drops.Add(dropZak);
 
-            creates.Add(createZak);
-            creates.Add(createSed);
-            creates.Add(createFilm);
-            creates.Add(createProm);
-            creates.Add(createObj);
 
             for (int i = 0; i < drops.Count; i++)
             {
                 this.CentralMethod(drops[i]);
             }
 
+            creates.Add(createZak);
+            creates.Add(createSed);
+            creates.Add(createFilm);
+            creates.Add(createProm);
+            creates.Add(createObj);
+
             for (int i = 0; i < creates.Count; i++)
             {
                 this.CentralMethod(creates[i]);
             }
+            
         }
 
 
+        /// <summary>
+        /// Metoda, která hlídá, jestli v db již jsou filmy, pokud ne vloží je tam
+        /// </summary>
         public void CheckMoviesInDB()
         {
             string selectFilm = "select * from film;";
@@ -391,6 +399,9 @@ namespace MiniCinema
         }
 
 
+        /// <summary>
+        /// Metoda, ve které získám filmy z csv souboru + práce s nimi
+        /// </summary>
         public void GetMoviesFromFile()
         {
             using (StreamReader reader = new StreamReader(PathMovies))
@@ -410,6 +421,11 @@ namespace MiniCinema
             }
         }
 
+
+        /// <summary>
+        /// Metoda sloužící k vypsání filmů
+        /// </summary>
+        /// <returns></returns>
         public string PrintMovies()
         {
             string print = "Filmy =>\n";
@@ -426,6 +442,12 @@ namespace MiniCinema
             return print;
         }
 
+
+        /// <summary>
+        /// Metoda, která podle indexu vrátí hledané promítání
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public Promitani PrintPromitani(int index)
         {
             
@@ -444,12 +466,23 @@ namespace MiniCinema
             return print;
         }
 
+
+        /// <summary>
+        /// Metoda pro uložení objednávky
+        /// </summary>
+        /// <param name="o"></param>
         public void SaveObjednavka(Objednavka o)
         {
             Objednavky.Add(o);
         }   
 
         
+
+        /// <summary>
+        /// Metoda, která vrací počet => index (počet řádků v db v jednotlivé tabulce)
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
         public int ReadIndex(string table)
         {
             int index = 0;
@@ -466,29 +499,29 @@ namespace MiniCinema
         }
 
 
-
-        public void SendEmail(Objednavka o)
+        /// <summary>
+        /// Metoda pro zaslání emailu
+        /// </summary>
+        /// <param name="z"></param>
+        public void SendEmail(Zakaznik z)
         {
-            string smtpServer = "smtp.gmail.com";
-            int smtpPort = 587;
+            
+            MailMessage mailMessage = new MailMessage();
+            mailMessage.From = new MailAddress(Email);
+            mailMessage.Subject = "Objednávka lístků v MiniCinema";
+            mailMessage.To.Add(new MailAddress(z.Email));
+            mailMessage.Body = "<html><body>"+ ReadObjednavkaByZak(z) + "</body></html>";
+            mailMessage.IsBodyHtml = true;
 
-            string smtpUsername = "miniCinemA1234";
-            string smtpPassword = "miniCinemA1234";
-
-            MailMessage mail = new MailMessage();
-            mail.From = new MailAddress(Email);
-            mail.To.Add(new MailAddress(o.Zakaznik.Email));
-            mail.Subject = "Objednání lístků do kina";
-            mail.Body = o.ToString();
-
-            SmtpClient smtpClient = new SmtpClient(smtpServer, smtpPort);
-            smtpClient.UseDefaultCredentials = false;
-            smtpClient.EnableSsl = true;
-            smtpClient.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
-
+            var smtpClient = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential(Email, Password),
+                EnableSsl = true,
+            };
             try
             {
-                smtpClient.Send(mail);
+                smtpClient.Send(mailMessage);
             }
             catch (Exception ex)
             {
@@ -496,29 +529,46 @@ namespace MiniCinema
             }
         }
 
-        public string Login(Zakaznik z)
+        /// <summary>
+        /// Log-In => přihlášení
+        /// </summary>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public bool Login(Zakaznik z)
         {
             foreach (Zakaznik zak in Zakaznici)
             {
                 if (z.Email == zak.Email && z.Heslo == zak.Heslo)
                 {
                     PrihlasenyZakaznik = z;
-                    return "\nPrihlaseny zakaznik =>\n" + z.ToString();
+                    return true;
                 }
             }
-            return "Neúspěšné přihlášení...";
+            return false;
         }
 
 
+        /// <summary>
+        /// Zde kontroluji, aby v db nebyly stejné emaily => pro lepší přehlednost
+        /// </summary>
+        /// <param name="z"></param>
+        /// <returns></returns>
+        public bool CheckEmails(Zakaznik z)
+        {
+            for (int i = 0; i < Zakaznici.Count; i++)
+            {
+                if (Zakaznici[i].Email == z.Email)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
-
-
-
-
-
-
-
-
+        /// <summary>
+        /// CRUD Zakaznik
+        /// </summary>
+        /// <param name="z"></param>
         public void InsertZakaznik(Zakaznik z)
         {
             Zakaznici.Add(z);
@@ -553,9 +603,17 @@ namespace MiniCinema
             return vypis;
         }
 
-        public void UpdateZakaznik(string novy)
+        public void UpdateZakaznik(Zakaznik z, string novy)
         {
-            string update = "update zakaznik set email = " + novy + " where zakaznik.id = 1;";
+            int zakaznik_id = 0;
+            for(int i = 0; i< Zakaznici.Count; i++)
+            {
+                if (Zakaznici[i].Email == z.Email && Zakaznici[i].Heslo == z.Heslo)
+                {
+                    zakaznik_id = (i+1); 
+                }
+            }
+            string update = "update zakaznik set email = '" + novy + "' where zakaznik.id = "+zakaznik_id+";";
             this.CentralMethod(update);
         }
 
@@ -566,12 +624,10 @@ namespace MiniCinema
         }
 
 
-
-
-
-
-
-
+        /// <summary>
+        /// CRUD Film
+        /// </summary>
+        /// <param name="f"></param>
         public void InsertFilm(Film f)
         {
             string vlozFilm = "insert into film(nazev, cena, delka) values ('" + f.Nazev + "', '" + f.Cena + "', '" + f.Delka+ "');";
@@ -582,7 +638,6 @@ namespace MiniCinema
                 command.Parameters.AddWithValue("@delka", f.Delka);
                 this.CentralMethod(vlozFilm);
             }
-
         }
 
         public string ReadFilm()
@@ -617,8 +672,10 @@ namespace MiniCinema
         }
 
 
-
-
+        /// <summary>
+        /// CRUD Sedadlo
+        /// </summary>
+        /// <param name="s"></param>
         public void InsertSedadlo(Sedadlo s)
         {
             string vlozSedadlo = "insert into sedadlo(cislo) values (" + s.Cislo + ");";
@@ -627,7 +684,6 @@ namespace MiniCinema
                 command.Parameters.AddWithValue("@cislo", s.Cislo);
                 this.CentralMethod(vlozSedadlo);
             }
-
         }
 
         public string ReadSedadlo()
@@ -660,19 +716,12 @@ namespace MiniCinema
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        /// <summary>
+        /// CRUD Promitani
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="film_id"></param>
+        /// <param name="sedadlo_id"></param>
         public void InsertPromitani(Promitani p, int film_id, int sedadlo_id)
         {
             string vlozProm = "insert into promitani(nazev, film_id, sedadlo_id) values ('" + p.Nazev + "', " + (film_id+1) + ", " + sedadlo_id + ");";
@@ -684,7 +733,6 @@ namespace MiniCinema
                 
                 this.CentralMethod(vlozProm);
             }
-
         }
 
         public string ReadPromitani()
@@ -708,7 +756,6 @@ namespace MiniCinema
                         vypis += film.ToString() + "\n";
                     }
                 }
-                
             }
             connection.Close();
             return vypis;
@@ -727,17 +774,10 @@ namespace MiniCinema
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
+        /// <summary>
+        /// CRUD Objednavka
+        /// </summary>
+        /// <param name="o"></param>
         public void InsertObj(Objednavka o)
         {
             string vlozProm = "insert into objednavka(cisloObj, zakaznik_id, promitani_id) values (" + o.CisloObj + ", " + (ReadIndex("zakaznik")) + ", "+ (ReadIndex("promitani")) + ");";
@@ -749,7 +789,6 @@ namespace MiniCinema
 
                 this.CentralMethod(vlozProm);
             }
-
         }
 
         public string ReadObjednavka()
@@ -765,7 +804,7 @@ namespace MiniCinema
                 int zakaznik_id = (int)reader["zakaznik_id"];
                 int promitani_id = (int)reader["promitani_id"];
 
-
+                vypis += "\nObjednavka c." + cisloObj+ "\n-----------------------------------------------------------------------------\n"; 
                 for (int i = 1; i <= Zakaznici.Count; i++)
                 {
                     if (i == zakaznik_id)
@@ -791,7 +830,8 @@ namespace MiniCinema
         public string ReadObjednavkaByZak(Zakaznik z)
         {
             string vypis = "";
-            string selectObj = "select * from objednavka inner join zakaznik on zakaznik.id = objednavka.zakaznik_id where zakaznik.email = "+z.Email+";";
+            Zakaznik zak = null;    
+            string selectObj = "select objednavka.cisloObj, objednavka.zakaznik_id, objednavka.promitani_id from objednavka inner join zakaznik on zakaznik.id = objednavka.zakaznik_id where zakaznik.email = '" + z.Email + "';";
             using SqlCommand command = new SqlCommand(selectObj, connection);
             connection.Open();
             using SqlDataReader reader = command.ExecuteReader();
@@ -801,21 +841,22 @@ namespace MiniCinema
                 int zakaznik_id = (int)reader["zakaznik_id"];
                 int promitani_id = (int)reader["promitani_id"];
 
+                vypis += "\nObjednavka c." + cisloObj + "\n-----------------------------------------------------------------------------\n";
                 for (int i = 1; i <= Zakaznici.Count; i++)
                 {
                     if (i == zakaznik_id)
                     {
-                        Zakaznik zak = Zakaznici[i - 1];
+                        zak = Zakaznici[i - 1];
                         vypis += zak.ToString() + "\n";
                     }
                 }
 
-                for (int i = 1; i <= Saly.Count; i++)
+                for (int i = 1; i <= RezSaly.Count; i++)
                 {
-                    if (i == promitani_id)
+                    if (i == promitani_id && zak.Email == Zakaznici[i-1].Email)
                     {
-                        Promitani promitani = Saly[i - 1];
-                        vypis += promitani.ToString();
+                        Promitani promitani = RezSaly[i - 1];
+                        vypis += promitani.Vypis() + "\n-----------------------------------------------------------------------------\n";
                     }
                 }
             }
@@ -823,10 +864,10 @@ namespace MiniCinema
             return vypis;
         }
 
-        public string ReadObjednavkaByObj(Objednavka o)
+        public string ReadObjednavkaByCisloObj(int cislo)
         {
             string vypis = "";
-            string selectObj = "select * from objednavka where objednavka.cisloObj = " + o.CisloObj + ";";
+            string selectObj = "select * from objednavka where objednavka.cisloObj = "+cislo+";";
             using SqlCommand command = new SqlCommand(selectObj, connection);
             connection.Open();
             using SqlDataReader reader = command.ExecuteReader();
@@ -836,6 +877,8 @@ namespace MiniCinema
                 int zakaznik_id = (int)reader["zakaznik_id"];
                 int promitani_id = (int)reader["promitani_id"];
 
+
+                vypis += "\nObjednavka c." + cisloObj + "\n-----------------------------------------------------------------------------\n";
                 for (int i = 1; i <= Zakaznici.Count; i++)
                 {
                     if (i == zakaznik_id)
@@ -850,7 +893,7 @@ namespace MiniCinema
                     if (i == promitani_id)
                     {
                         Promitani promitani = Saly[i - 1];
-                        vypis += promitani.ToString();
+                        vypis += promitani.ToString()+ "\n-----------------------------------------------------------------------------\n";
                     }
                 }
             }
@@ -858,40 +901,25 @@ namespace MiniCinema
             return vypis;
         }
 
-        public void UpdateObjednavka(int novy)
+
+        public void UpdateObjednavka(int cisloObj, int novyCislo)
         {
-            string update = "update objednavka set cisloObj = " + novy + " where objednavka.id = 1;";
+            string update = "update objednavka set cisloObj = " + novyCislo + " where objednavka.cisloObj = "+cisloObj+";";
             this.CentralMethod(update);
         }
 
-        public void GetIdByZak(Zakaznik z)
-        {
-            string select = "select zakaznik.id"
-        }
-
-
-        public void UpdateObjednavkaByObj(Zakaznik z)
+        public void DeleteObjenavka(int cisloObj)
         {
 
-            string update = "update objednavka set cisloObj = " + cisloObj + " where objednavka.id = 1;";
-            this.CentralMethod(update);
-        }
-
-
-
-        public void DeleteObjenavka()
-        {
-            string del = "delete from objednavka;";
+            string del = "delete from objednavka where objednavka.cisloObj = " + cisloObj + ";";
             this.CentralMethod(del);
+            for (int i = 0; i < Objednavky.Count; i++)
+            {
+                if (Objednavky[i].CisloObj == cisloObj)
+                {
+                    Objednavky.Remove(Objednavky[i]);
+                }
+            }
         }
-
-
-
-
-
-
-
-
-
     }
 }
